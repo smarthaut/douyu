@@ -20,10 +20,15 @@ class DouyuSpider(scrapy.Spider):
 
     def parse(self, response):
         data = json.loads(response.body_as_unicode())["data"]
-        print('name:'+data[1]['nickname'])
-        print('url:'+data[1]['vertical_src'])
-        item = DouyuSpiderItem()
-        item['name'] = str(data[1]['nickname'])
-        item['imageUrls'] = str(data[1]['vertical_src'])
-        return item
+        for each in data:
+            item = DouyuSpiderItem()
+            item['name'] = str(each['nickname'])
+            item['imageUrls'] = str(each['vertical_src'])
+            yield item
+        self.offset += 20
+        if self.offset <= 200:
+            yield scrapy.Request(self.url+str(self.offset),callback = self.parse)
+        else:
+            return
+
 
